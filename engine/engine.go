@@ -2,7 +2,10 @@ package engine
 
 import (
 	"fmt"
+	"log"
+	"time"
 
+	entity "github.com/Cameliuu/zenith/engine/entitiy"
 	"github.com/Cameliuu/zenith/memory"
 	"golang.org/x/sys/windows"
 )
@@ -43,12 +46,27 @@ func Init() (*GameData, error) {
 	}, nil
 }
 
-func Run() error {
-	_, err := Init()
+func Run() {
+	gameData, err := Init()
 
 	if err != nil {
-		return err
+		log.Fatal("zenith: could not initialize engine: %w", err)
 	}
+	defer windows.CloseHandle(gameData.handle)
 	fmt.Println("zenith: engine initialized")
-	return nil
+
+	for {
+		localPlayerInfo, err := entity.GetLocalPlayerInfo(gameData.handle, gameData.clientModuleBaseAddress)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(localPlayerInfo)
+
+		_, err = entity.GetEntities(gameData.handle, gameData.hwModuleBaseAddress)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		time.Sleep(10 * time.Millisecond)
+	}
 }

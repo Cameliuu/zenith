@@ -1,6 +1,7 @@
 package memory
 
 import (
+	"bytes"
 	"fmt"
 	"unsafe"
 
@@ -27,6 +28,43 @@ func FindProcessIdByName(targetProc string) (uint32, error) {
 	}
 	return 0, fmt.Errorf("zenith: Could not find process: %w", procErr)
 }
+func Read[T any](handle windows.Handle, address uintptr) (T, error) {
+	var result T
+	err := windows.ReadProcessMemory(
+		handle,
+		address,
+		(*byte)(unsafe.Pointer(&result)),
+		unsafe.Sizeof(result),
+		nil,
+	)
+	return result, err
+}
+
+func ReadString(handle windows.Handle, address uintptr, length uint) (string, error) {
+	buf := make([]byte, length)
+
+	err := windows.ReadProcessMemory(handle,
+		address,
+		&buf[0],
+		uintptr(length),
+		nil)
+
+	if err != nil {
+		return "", nil
+	}
+
+	return string(bytes.TrimRight(buf, "\x00")), nil
+}
+func Write[T any](handle windows.Handle, address uintptr, value T) error {
+	var written uintptr
+	return windows.WriteProcessMemory(
+		handle,
+		address,
+		(*byte)(unsafe.Pointer(&value)),
+		unsafe.Sizeof(value),
+		&written,
+	)
+}
 
 // TO-DO: Add handle hijacking
 func OpenHandleToProcessByPID(PID uint32) (windows.Handle, error) {
@@ -38,8 +76,15 @@ func OpenHandleToProcessByPID(PID uint32) (windows.Handle, error) {
 		return 0, fmt.Errorf("zenith: could not open handle to process: %w", err)
 	}
 
-	defer windows.CloseHandle(handle)
 	return handle, nil
+}
+
+func ReadMemoryInBulk(handle windows.Handle, moduleBaseAddress uintptr, buf []byte) error {
+	err := windows.ReadProcessMemory(handle, moduleBaseAddress, &buf[0], uintptr(len(buf)), nil)
+	if err != nil {
+		return fmt.Errorf("zenith: error reading memory in bulk: %w", err)
+	}
+	return nil
 }
 
 // TO-DO: Open just one snapshot and search for more modules
