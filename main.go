@@ -1,9 +1,9 @@
 package main
 
 import (
-	"fmt"
+	"github.com/Cameliuu/zenith/engine"
 )
 
 func main() {
-	fmt.Println("Initial commit")
+	engine.Run()
 }
