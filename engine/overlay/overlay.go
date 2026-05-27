@@ -5,8 +5,8 @@ import (
 )
 
 const (
-	ScreenW = 1536
-	ScreenH = 940
+	ScreenW = 1520
+	ScreenH = 872
 )
 
 /*

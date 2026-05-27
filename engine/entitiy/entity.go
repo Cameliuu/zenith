@@ -16,14 +16,16 @@ import (
 ================================================================= Entities ================================================================
 */
 type PlayerInfo struct {
-	Number    int32
-	Cmd       string
-	Name      string
-	Model     string
-	IsAlive   int32
-	AnimFrame float32
-	Smth      float32
-	Position  overlay.Vector3
+	Number        int32
+	Cmd           string
+	Name          string
+	Model         string
+	IsAlive       int32
+	AnimFrame     float32
+	Smth          float32
+	Position      overlay.Vector3
+	PrevAnimFrame float32
+	IsStale       bool
 }
 
 type PlayerInfoRaw struct {

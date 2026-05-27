@@ -1,4 +1,8 @@
 github.com/Cameliuu/veil v0.0.0-20260524205754-93b25f7df79a h1:4Sc5WbI5vV1J2PuHuIcb2zIc/cVCh5A3wasEzmdSGRU=
 github.com/Cameliuu/veil v0.0.0-20260524205754-93b25f7df79a/go.mod h1:4IWqjEjBCXuhQr/bn/IQjCu8iWB4yQv2Tf45FQ1gQxQ=
+github.com/Cameliuu/veil v0.0.0-20260527154644-f1016e513259 h1:hlgvW8TdpD6F6hmJiNKGIhxTS/X29Wu9QMl0hWq0kBg=
+github.com/Cameliuu/veil v0.0.0-20260527154644-f1016e513259/go.mod h1:4IWqjEjBCXuhQr/bn/IQjCu8iWB4yQv2Tf45FQ1gQxQ=
+github.com/Cameliuu/veil v0.0.0-20260527155232-e7c103788dc6 h1:bIXUb1W4xGAI8rNSeigtmTD20j4DO8PFHphwC4YT8Zo=
+github.com/Cameliuu/veil v0.0.0-20260527155232-e7c103788dc6/go.mod h1:4IWqjEjBCXuhQr/bn/IQjCu8iWB4yQv2Tf45FQ1gQxQ=
 golang.org/x/sys v0.45.0 h1:dO4czNzziLiiXplLQgBCEpCvXQ3dnkn0SdaZSYdQ+FY=
 golang.org/x/sys v0.45.0/go.mod h1:4GL1E5IUh+htKOUEOaiffhrAeqysfVGipDYzABqnCmw=

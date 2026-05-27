@@ -31,6 +31,8 @@ type GameData struct {
 	ClientModuleBaseAddress uintptr
 	Entities                []entity.PlayerInfo
 	LocalPlayerInfo         entity.LocalPlayerInfo
+	animFrames              [64]float32
+	oldAnimFrames           [64]float32
 }
 
 func Init() (*GameData, error) {
@@ -66,32 +68,50 @@ func Init() (*GameData, error) {
 func (g *GameData) Draw(hdc uintptr) {
 	entities := g.Entities
 	viewMatrix := g.LocalPlayerInfo.ViewMatrix
-	drawColor := draw.Green
-	for _, e := range entities {
-		if e.IsAlive == 0 {
+
+	for i, e := range entities {
+		curr := e.AnimFrame
+		old := g.animFrames[i]
+		oldOld := g.oldAnimFrames[i]
+
+		if curr == old && curr == oldOld {
+			entities[i].IsStale = true
+		} else {
+			entities[i].IsStale = false
+		}
+
+		g.oldAnimFrames[i] = old
+		g.animFrames[i] = curr
+
+		if e.IsAlive == 0 || entities[i].IsStale {
 			continue
 		}
+
+		drawColor := draw.Green
+		if modelToTeams[e.Model] != uint(g.LocalPlayerInfo.Team) {
+			drawColor = draw.Red
+		}
+
 		feet := overlay.Vector3{X: e.Position.X, Y: e.Position.Y, Z: e.Position.Z - 35}
 		head := overlay.Vector3{X: feet.X, Y: feet.Y, Z: feet.Z + 60}
 
 		feetSX, feetSY, feetOnScreen := overlay.WorldToScreen(viewMatrix, feet, overlay.ScreenW, overlay.ScreenH)
-		_, headSY, headOnScreen := overlay.WorldToScreen(viewMatrix, head, overlay.ScreenW, overlay.ScreenH)
+		headSX, headSY, headOnScreen := overlay.WorldToScreen(viewMatrix, head, overlay.ScreenW, overlay.ScreenH)
 
 		if !feetOnScreen || !headOnScreen {
 			continue
 		}
+
 		h := feetSY - headSY
 		w := h / 2.5
-
-		if modelToTeams[e.Model] != uint(g.LocalPlayerInfo.Team) {
-			drawColor = draw.Red
-		}
 		draw.Box(hdc, win32.Rect{
 			Left:   int32(feetSX - w/2),
 			Top:    int32(headSY),
 			Right:  int32(feetSX + w/2),
 			Bottom: int32(feetSY),
 		}, drawColor)
+
+		draw.TextOut(hdc, e.Name, int32(headSX-20), int32(headSY-20), drawColor)
 	}
 }
 
@@ -115,7 +135,7 @@ func Run() {
 				log.Fatal(err)
 			}
 			gameData.Entities = entities
-			time.Sleep(1 * time.Millisecond)
+			time.Sleep(16 * time.Millisecond)
 		}
 	}()
 	window.Run("Counter-Strike", gameData.Draw)
