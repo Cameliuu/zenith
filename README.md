@@ -37,6 +37,12 @@
 - 60fps repaint loop
 
 ---
+## Detection Status
+
+![Clean](assets/fungun_report.png)
+
+> Tested on [FunGun](https://fungun.net) — Clean ✅
+
 
 ## Prerequisites
 - Counter-Strike 1.6 Steam (Build 8684)
