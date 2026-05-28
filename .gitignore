@@ -1,0 +1,50 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary
+*.test
+
+# Output of the go coverage tool
+*.out
+coverage.out
+
+# Go workspace
+go.work
+go.work.sum
+
+# Dependency directories (rarely used with Go modules)
+vendor/
+
+# IDE folders
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env
+.env.local
+
+# Build folders
+bin/
+dist/
+build/
+
+# Logs
+*.log
+
+# Generated files
+*.generated.go
+
+# Temporary files
+tmp/
+temp/
+
+# JetBrains
+*.iml
