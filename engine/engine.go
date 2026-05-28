@@ -36,11 +36,12 @@ type GameData struct {
 	animFrames              [64]float32
 	oldAnimFrames           [64]float32
 	windowDetails           *window.Window
+	Config                  *config.Config
 }
 
 const windowName = "Counter-Strike"
 
-func Init() (*GameData, error) {
+func Init(config *config.Config) (*GameData, error) {
 	pid, err := memory.FindProcessIdByName("cstrike.exe")
 
 	if err != nil {
@@ -67,10 +68,14 @@ func Init() (*GameData, error) {
 		Handle:                  handle,
 		HWModuleBaseAddress:     hwModuleBase,
 		ClientModuleBaseAddress: clientModuleBase,
+		Config:                  config,
 	}, nil
 }
 
 func (g *GameData) Draw(hdc uintptr) {
+	if !g.Config.ESP.IsToggledOn() {
+		return
+	}
 	entities := g.Entities
 	viewMatrix := g.LocalPlayerInfo.ViewMatrix
 
@@ -125,7 +130,7 @@ func (g *GameData) Draw(hdc uintptr) {
 }
 
 func Run(config *config.Config) {
-	gameData, err := Init()
+	gameData, err := Init(config)
 
 	if err != nil {
 		log.Fatal("zenith: could not initialize engine: %w", err)
@@ -137,19 +142,17 @@ func Run(config *config.Config) {
 			if input.IsKeyJustPressed(config.ESP.Hotkey) {
 				config.ESP.Toggle()
 			}
-			if config.ESP.IsToggledOn() {
-				localPlayerInfo, err := entity.GetLocalPlayerInfo(gameData.Handle, gameData.ClientModuleBaseAddress, gameData.HWModuleBaseAddress)
-				if err != nil {
-					log.Fatal(err)
-				}
-				gameData.LocalPlayerInfo = localPlayerInfo
-				entities, err := entity.GetEntities(gameData.Handle, gameData.HWModuleBaseAddress)
-				if err != nil {
-					log.Fatal(err)
-				}
-				gameData.Entities = entities
-				time.Sleep(16 * time.Millisecond)
+			localPlayerInfo, err := entity.GetLocalPlayerInfo(gameData.Handle, gameData.ClientModuleBaseAddress, gameData.HWModuleBaseAddress)
+			if err != nil {
+				log.Fatal(err)
 			}
+			gameData.LocalPlayerInfo = localPlayerInfo
+			entities, err := entity.GetEntities(gameData.Handle, gameData.HWModuleBaseAddress)
+			if err != nil {
+				log.Fatal(err)
+			}
+			gameData.Entities = entities
+			time.Sleep(16 * time.Millisecond)
 		}
 	}()
 	w, err := window.New(windowName)
@@ -157,6 +160,5 @@ func Run(config *config.Config) {
 		log.Fatalf("zenith: could not open overlay window %w")
 	}
 	gameData.windowDetails = w
-	fmt.Println(w.Width(), w.Height())
 	w.Run(gameData.Draw)
 }
