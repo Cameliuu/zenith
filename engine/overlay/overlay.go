@@ -2,24 +2,21 @@ package overlay
 
 import (
 	"math"
+
+	"github.com/Cameliuu/zenith/engine/entitiy/utils"
 )
 
 /*
 ================================================================ Utilities ================================================================
 */
 type ViewAngles struct {
-	Yaw, Pitch float32
+	Pitch, Yaw float32
 }
 type ViewMatrix struct {
 	Matrix [16]float32
 }
-type Vector3 struct {
-	X float32
-	Y float32
-	Z float32
-}
 
-func AnglesToVectors(angles ViewAngles) (forward, right, up Vector3) {
+func AnglesToVectors(angles ViewAngles) (forward, right, up utils.Vector3) {
 	p := float64(angles.Pitch) * math.Pi / 180.0
 	y := float64(angles.Yaw) * math.Pi / 180.0
 
@@ -28,24 +25,24 @@ func AnglesToVectors(angles ViewAngles) (forward, right, up Vector3) {
 	sy := math.Sin(y)
 	cy := math.Cos(y)
 
-	forward = Vector3{
+	forward = utils.Vector3{
 		X: float32(cp * cy),
 		Y: float32(cp * sy),
 		Z: float32(-sp),
 	}
-	right = Vector3{
+	right = utils.Vector3{
 		X: float32(sy),
 		Y: float32(-cy),
 		Z: 0,
 	}
-	up = Vector3{
+	up = utils.Vector3{
 		X: float32(sp * cy),
 		Y: float32(sp * sy),
 		Z: float32(cp),
 	}
 	return
 }
-func WorldToScreen(viewMatrix ViewMatrix, point Vector3, screenW, screenH int) (float32, float32, bool) {
+func WorldToScreen(viewMatrix ViewMatrix, point utils.Vector3, screenW, screenH int) (float32, float32, bool) {
 	x := point.X
 	y := point.Y
 	z := point.Z
@@ -74,6 +71,6 @@ func WorldToScreen(viewMatrix ViewMatrix, point Vector3, screenW, screenH int) (
 	return px, py, true
 }
 
-func Dot(a, b Vector3) float32 {
+func Dot(a, b utils.Vector3) float32 {
 	return a.X*b.X + a.Y*b.Y + a.Z*b.Z
 }

@@ -6,6 +6,7 @@ import (
 	"strings"
 	"unsafe"
 
+	"github.com/Cameliuu/zenith/engine/entitiy/utils"
 	"github.com/Cameliuu/zenith/engine/offsets"
 	"github.com/Cameliuu/zenith/engine/overlay"
 	"github.com/Cameliuu/zenith/memory"
@@ -23,7 +24,7 @@ type PlayerInfo struct {
 	IsAlive       int32
 	AnimFrame     float32
 	Smth          float32
-	Position      overlay.Vector3
+	Position      utils.Vector3
 	PrevAnimFrame float32
 	IsStale       bool
 }
@@ -36,7 +37,7 @@ type PlayerInfoRaw struct {
 	isAlive   int32
 	AnimFrame float32
 	Smth      float32
-	Position  overlay.Vector3
+	Position  utils.Vector3
 	Pad       [188]byte
 }
 
@@ -77,7 +78,7 @@ type LocalPlayerInfo struct {
 	ViewMatrix overlay.ViewMatrix
 	Team       int32
 	ViewAngles overlay.ViewAngles
-	Origin     overlay.Vector3
+	Origin     utils.Vector3
 }
 
 func GetLocalPlayerInfo(handle windows.Handle, moduleBaseAddress uintptr, HWModuleBaseAddress uintptr) (LocalPlayerInfo, error) {
@@ -95,13 +96,11 @@ func GetLocalPlayerInfo(handle windows.Handle, moduleBaseAddress uintptr, HWModu
 	}
 
 	viewAngles, err := memory.Read[overlay.ViewAngles](handle, HWModuleBaseAddress+offsets.Pitch)
-
 	if err != nil {
 		return LocalPlayerInfo{}, fmt.Errorf("zenith: could not read local player :%w", err)
 	}
 
-	origin, err := memory.Read[overlay.Vector3](handle, HWModuleBaseAddress+offsets.LocalPlayerOrigin)
-
+	origin, err := memory.Read[utils.Vector3](handle, HWModuleBaseAddress+offsets.LocalPlayerOriginOnline)
 	if err != nil {
 		return LocalPlayerInfo{}, fmt.Errorf("zenith: could not read local player :%w", err)
 	}
@@ -115,7 +114,7 @@ func GetLocalPlayerInfo(handle windows.Handle, moduleBaseAddress uintptr, HWModu
 
 }
 
-func GetEntities(handle windows.Handle, moduleBaseAddress uintptr) ([]PlayerInfo, error) {
+func GetEntities(handle windows.Handle, moduleBaseAddress uintptr, animFrames, oldAnimFrames *[64]float32) ([]PlayerInfo, error) {
 	buf := make([]byte, 37900)
 	entitySize := unsafe.Sizeof(PlayerInfoRaw{})
 	count := len(buf) / int(entitySize)
@@ -133,6 +132,18 @@ func GetEntities(handle windows.Handle, moduleBaseAddress uintptr) ([]PlayerInfo
 			continue
 		}
 		entities = append(entities, player)
+	}
+	for i := range entities {
+		curr := entities[i].AnimFrame
+		old := animFrames[i]
+		oldOld := oldAnimFrames[i]
+
+		if curr == old && curr == oldOld && curr != 0 {
+			entities[i].IsStale = true
+		}
+
+		oldAnimFrames[i] = old
+		animFrames[i] = curr
 	}
 
 	return entities, nil

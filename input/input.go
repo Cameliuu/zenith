@@ -53,3 +53,8 @@ func IsKeyJustPressed(vk int) bool {
 	r, _, _ := procGetAsyncKeyState.Call(uintptr(vk))
 	return r&0x0001 != 0
 }
+
+func IsKeyPressed(vk int) bool {
+	r, _, _ := procGetAsyncKeyState.Call(uintptr(vk))
+	return r&0x8000 != 0
+}

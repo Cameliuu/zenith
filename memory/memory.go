@@ -69,7 +69,8 @@ func Write[T any](handle windows.Handle, address uintptr, value T) error {
 // TO-DO: Add handle hijacking
 func OpenHandleToProcessByPID(PID uint32) (windows.Handle, error) {
 	handle, err := windows.OpenProcess(windows.PROCESS_VM_WRITE|
-		windows.PROCESS_VM_READ,
+		windows.PROCESS_VM_READ|
+		windows.PROCESS_VM_OPERATION,
 		false,
 		PID)
 	if err != nil {
