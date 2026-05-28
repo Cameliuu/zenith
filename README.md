@@ -7,6 +7,8 @@
 ![Platform](https://img.shields.io/badge/Platform-Windows-blue)
 ![Build](https://img.shields.io/badge/Build-8684-green)
 
+![demo](assets/demo.gif)
+
 ---
 
 ## Features
